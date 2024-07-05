@@ -166,4 +166,7 @@ $RECYCLE.BIN/
 # config.toml file
 *config.toml
 
+#.idea
+*.idea
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,goland,go
