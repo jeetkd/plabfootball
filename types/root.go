@@ -1,5 +1,6 @@
 package types
 
+// -> Request
 type AddReq struct {
 	Sex    int    `json:"sex" binding:"eq=0|eq=1"`         // 성별
 	Region int    `json:"region" binding:"required,gte=1"` // 지역
@@ -46,6 +47,7 @@ type UsersReq struct {
 	Applys []User `json:"applys"`
 }
 
+// -> Response
 type GirlUrlRes struct {
 	Url []string
 }

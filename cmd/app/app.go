@@ -15,6 +15,7 @@ type App struct {
 	service    *service.Service
 }
 
+// NewApp 은 Rpository, Service, Router들을 초기화 시킵니다.
 func NewApp(config *config.Config) *App {
 	a := &App{
 		config: config,

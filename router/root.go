@@ -15,6 +15,7 @@ type Router struct {
 	repository *repository.Repository
 }
 
+// NewRouter 는 라우터를 초기화와 등록을 하고 서버를 실행.
 func NewRouter(config *config.Config, service *service.Service, repository *repository.Repository) (*Router, error) {
 	r := &Router{
 		config:     config,

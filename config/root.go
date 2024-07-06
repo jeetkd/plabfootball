@@ -13,10 +13,11 @@ type Config struct {
 
 	Mongo struct {
 		Db  string //db 이름
-		Uri string //db 접속 url
+		Uri string //db 접속 uri
 	}
 }
 
+// NewConfig 는 config 설정을 파싱해줍니다.
 func NewConfig(path string) *Config {
 	c := new(Config)
 

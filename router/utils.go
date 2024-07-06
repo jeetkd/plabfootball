@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// 핸들러를 등록합니다.
+
 func (r *Router) GET(path string, handlers gin.HandlerFunc) gin.IRoutes {
 	return r.engin.GET(path, handlers)
 }
@@ -28,5 +30,5 @@ func (r *Router) ResponseOK(c *gin.Context, response interface{}) {
 }
 
 func (r *Router) ResponseErr(c *gin.Context, err ...interface{}) {
-	c.JSON(http.StatusInternalServerError, err) //json으로 응답 전송.
+	c.JSON(http.StatusInternalServerError, err)
 }

@@ -12,6 +12,7 @@ type MongoRouter struct {
 	mService *mongo.MService
 }
 
+// NewMongoRouter 는 mongo와 관련된 핸들러를 등록합니다.
 func NewMongoRouter(router *Router, mService *mongo.MService) {
 	m := MongoRouter{
 		router:   router,
@@ -21,7 +22,7 @@ func NewMongoRouter(router *Router, mService *mongo.MService) {
 	baseUri := "/mongo"
 
 	//POST 등록
-	m.router.POST(baseUri+"/view", m.View)
+	m.router.POST(baseUri+"/view", m.view)
 	m.router.POST(baseUri+"/viewAll", m.viewAll)
 	m.router.POST(baseUri+"/add", m.add)
 
@@ -35,6 +36,7 @@ func NewMongoRouter(router *Router, mService *mongo.MService) {
 	m.router.POST("/plaber-girl", m.girlUser)
 }
 
+// add 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 Add를 호출합니다.
 func (m *MongoRouter) add(c *gin.Context) {
 	var req AddReq
 
@@ -49,6 +51,7 @@ func (m *MongoRouter) add(c *gin.Context) {
 	}
 }
 
+// upsert 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 Upsert를 호출합니다.
 func (m *MongoRouter) upsert(c *gin.Context) {
 	var req UpdateReq
 
@@ -63,7 +66,8 @@ func (m *MongoRouter) upsert(c *gin.Context) {
 	}
 }
 
-func (m *MongoRouter) View(c *gin.Context) {
+// view 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 View를 호출합니다.
+func (m *MongoRouter) view(c *gin.Context) {
 	var req ViewReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,6 +81,7 @@ func (m *MongoRouter) View(c *gin.Context) {
 	}
 }
 
+// viewAll 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 ViewAll를 호출합니다.
 func (m *MongoRouter) viewAll(c *gin.Context) {
 	if response, err := m.mService.ViewAll(); err != nil {
 		m.router.ResponseErr(c, ErrorMsg(ServerErr, err))
@@ -86,6 +91,7 @@ func (m *MongoRouter) viewAll(c *gin.Context) {
 	}
 }
 
+// delete 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 Delete를 호출합니다.
 func (m *MongoRouter) delete(c *gin.Context) {
 	var req DeleteReq
 
@@ -100,6 +106,7 @@ func (m *MongoRouter) delete(c *gin.Context) {
 	}
 }
 
+// girlUser 는 클라이언트에서 보낸 데이터를 바인딩 하고, 서비스단 GetGirlUser를 호출합니다.
 func (m *MongoRouter) girlUser(c *gin.Context) {
 	var req PlaceReq
 

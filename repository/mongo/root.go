@@ -23,6 +23,7 @@ type Mongo struct {
 	places *mongo.Collection
 }
 
+// NewMongo 는 DB와 연결을 하기 위한 초기화 과정을 거친 후 Mongo 객체를 반환합니다.
 func NewMongo(config *config.Config) (*Mongo, error) {
 	m := &Mongo{
 		config: config,
@@ -37,14 +38,15 @@ func NewMongo(config *config.Config) (*Mongo, error) {
 	} else if err = m.client.Ping(ctx, nil); err != nil {
 		panic(err)
 	} else {
-		// db 생성
+		// db 연결
 		m.db = m.client.Database(config.Mongo.Db)
-		// 컬렉션 생성
+		// 컬렉션 연결
 		m.places = m.db.Collection("Places")
 	}
 	return m, nil
 }
 
+// Add 는 service단에서 받은 데이터를 DB에 추가합니다.
 func (m *Mongo) Add(sch string, sex, region int) error {
 	currentTime := time.Now()
 	url := fmt.Sprintf("https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=%s&sex=%d&hide_soldout=&region=%d", sch, sex, region)
@@ -63,6 +65,7 @@ func (m *Mongo) Add(sch string, sex, region int) error {
 	return err
 }
 
+// View 는 service단에서 받은 데이터를 DB에서 가져옵니다.
 func (m *Mongo) View(sch string, region, sex int) (*schema.Stadium, error) {
 	var filter bson.M
 	var s schema.Stadium
@@ -76,6 +79,7 @@ func (m *Mongo) View(sch string, region, sex int) (*schema.Stadium, error) {
 	}
 }
 
+// ViewAll 는 DB에 특정 collection안의 데이터를 모두 가져옵니다.
 func (m *Mongo) ViewAll() ([]*schema.Stadium, error) {
 	filter := bson.M{}
 
@@ -96,6 +100,7 @@ func (m *Mongo) ViewAll() ([]*schema.Stadium, error) {
 	}
 }
 
+// Upsert 는 service단에서 받은 데이터를 DB에 추가 또는 업데이트합니다.
 func (m *Mongo) Upsert(sch string, sex, region int, upsert types.AddReq) (*schema.Stadium, error) {
 	var s schema.Stadium
 
@@ -131,6 +136,7 @@ func (m *Mongo) Upsert(sch string, sex, region int, upsert types.AddReq) (*schem
 	}
 }
 
+// Delete 는 service단에서 받은 데이터를 DB에서 삭제합니다.
 func (m *Mongo) Delete(sch string, region, sex int) error {
 	url := fmt.Sprintf("https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=%s&sex=%d&hide_soldout=&region=%d", sch, sex, region)
 	//삭제할 필터 조건
