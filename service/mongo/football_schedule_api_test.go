@@ -11,7 +11,7 @@ import (
 //
 //import "testing"
 //
-//func Test_getGirlStadium(t testing.T) {
+//func Test_getGirlStadium(t *testing.T) {
 //	tests := []struct {
 //		name     string
 //		testUrl  string //테스트 할 값
@@ -22,10 +22,46 @@ import (
 //	}
 //
 //}
-//
-//func Test_checkSex(t testing.T) {
-//
-//}
+
+func Test_checkSex(t *testing.T) {
+	tests := []struct {
+		name     string // 테스트 이름
+		url      string // 테스트 할 값
+		expected bool   // 예상되는 bool 값
+		err      error  // 예상되는 에러
+	}{
+		{name: "StatusOK", url: "https://www.plabfootball.com/api/v2/matches/534/", expected: false, err: nil},
+		{name: "StatusNotFound", url: "https://www.plabfootball.com/api/v2/matches/40362732s/", expected: false, err: fmt.Errorf("HTTP 상태 코드 오류: %d", http.StatusNotFound)},
+		{name: "GETError", url: "https://www.plabfootballsad.com/api/v2/matches/534/", expected: false, err: fmt.Errorf("GET 요청 에러")},
+		{name: "unmarshalError", url: "https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=2024-07-17&region=me", expected: false, err: fmt.Errorf("JSON 데이터 디코딩 오류: json: cannot unmarshal array into Go value of type types.UsersReq")},
+		{name: "ExistGirl", url: "https://www.plabfootball.com/api/v2/matches/390411/", expected: true, err: nil},
+		{name: "NoExistGirl", url: "https://www.plabfootball.com/api/v2/matches/389100/", expected: false, err: nil},
+	}
+
+	for _, e := range tests {
+		result, err := checkSex(e.url)
+		if e.err == nil && err != nil {
+			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
+		} else if err == nil && e.err != nil {
+			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
+		} else if err != nil && e.err != nil {
+			// err 메시지가 둘다 nil이 아닐때 문자열 비교
+			if !strings.EqualFold(e.err.Error(), err.Error()) {
+				t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
+			}
+		} else {
+			// 여자가 있는지 체크
+			if e.expected && !result {
+				t.Errorf("%s: expected true but got false", e.name)
+			}
+
+			if !e.expected && result {
+				t.Errorf("%s: expected false but got true", e.name)
+			}
+		}
+	}
+
+}
 
 func Test_getStadiums(t *testing.T) {
 
@@ -34,9 +70,9 @@ func Test_getStadiums(t *testing.T) {
 	testUrl := fmt.Sprintf("https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=%s&sex=0&hide_soldout=&region=1", currentDate)
 
 	tests := []struct {
-		name string
-		url  string //테스트 할 값
-		err  error  //예상되는 에러
+		name string // 테스트 이름
+		url  string // 테스트 할 값
+		err  error  // 예상되는 에러
 	}{
 		{name: "unmarshalError", url: "https://www.plabfootball.com/api/v2/matches/534/", err: fmt.Errorf("JSON 데이터 디코딩 오류: json: cannot unmarshal object into Go value of type []types.StadiumReq")},
 		{name: "StatusNotFound", url: "https://www.plabfootball.com/api/v2/matches/40362732s/", err: fmt.Errorf("HTTP 상태 코드 오류: %d", http.StatusNotFound)},
@@ -60,7 +96,7 @@ func Test_getStadiums(t *testing.T) {
 
 func Test_getBody(t *testing.T) {
 	tests := []struct {
-		name string
+		name string //테스트 이름
 		url  string //테스트 할 값
 		err  error  //예상되는 에러
 	}{
