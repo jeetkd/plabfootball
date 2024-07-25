@@ -11,7 +11,7 @@ import (
 func Test_getGirlStadium(t *testing.T) {
 	today := time.Now() //현재시간.
 	currentDate := today.Format("2006-01-02")
-	testUrl := fmt.Sprintf("https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=%s&sex=0&hide_soldout=&region=2", currentDate) //실시간 url 요청.
+	testUrl := fmt.Sprintf("https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=%s&sex=0&hide_soldout=&region=5", currentDate) //실시간 url 요청.
 	testData := types.GirlUrlRes{Url: []string{"https://www.plabfootball.com/api/v2/matches/534/"}}
 
 	tests := []struct {
@@ -57,7 +57,7 @@ func Test_checkSex(t *testing.T) {
 		{name: "GETError", url: "https://www.plabfootballsad.com/api/v2/matches/534/", expected: false, err: fmt.Errorf("GET 요청 에러")},
 		{name: "unmarshalError", url: "https://www.plabfootball.com/api/v2/integrated-matches/?page_size=700&ordering=schedule&sch=2024-07-17&region=me", expected: false, err: fmt.Errorf("JSON 데이터 디코딩 오류: json: cannot unmarshal array into Go value of type types.UsersReq")},
 		{name: "ExistGirl", url: "https://www.plabfootball.com/api/v2/matches/395320/", expected: true, err: nil},
-		{name: "NoExistGirl", url: "https://www.plabfootball.com/api/v2/matches/399007/", expected: false, err: nil},
+		{name: "NoExistGirl", url: "https://www.plabfootball.com/api/v2/matches/403095/", expected: false, err: nil},
 	}
 
 	for _, e := range tests {
@@ -100,7 +100,9 @@ func Test_getStadiums(t *testing.T) {
 		_, err := getStadiums(e.url)
 		if e.err != nil && err == nil {
 			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
-		} else if e.err == nil && err != nil {
+		}
+
+		if e.err == nil && err != nil {
 			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
 		}
 	}
@@ -120,7 +122,8 @@ func Test_getBody(t *testing.T) {
 		_, err := getBody(e.url)
 		if e.err != nil && err == nil {
 			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
-		} else if e.err == nil && err != nil {
+		}
+		if e.err == nil && err != nil {
 			t.Errorf("%s: expected %v, but got %v", e.name, e.err, err)
 		}
 	}
