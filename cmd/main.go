@@ -21,6 +21,8 @@ func main() {
 	flag.Parse()
 	// config 파일 가져옴.
 	c := config.NewConfig(*pathFlag)
-	// 앱 시작.
-	app.NewApp(c)
+	// 앱 세팅.
+	a := app.NewApp(c)
+	//서버 시작.
+	a.Router.Engin.Run(c.Network.Port)
 }

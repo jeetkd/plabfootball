@@ -9,13 +9,13 @@ import (
 
 type App struct {
 	config *config.Config
-	router *router.Router
+	Router *router.Router
 
 	repository *repository.Repository
 	service    *service.Service
 }
 
-// NewApp 은 Rpository, Service, Router들을 초기화 시킵니다.
+// NewApp 은 Rpository, service, Router들을 초기화 시킵니다.
 func NewApp(config *config.Config) *App {
 	a := &App{
 		config: config,
@@ -29,7 +29,7 @@ func NewApp(config *config.Config) *App {
 	if a.service, err = service.NewService(config, a.repository); err != nil {
 		panic(err)
 	}
-	if a.router, err = router.NewRouter(config, a.service, a.repository); err != nil {
+	if a.Router, err = router.NewRouter(config, a.service, a.repository); err != nil {
 		panic(err)
 	}
 
