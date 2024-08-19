@@ -10,7 +10,6 @@ import (
 
 var baseUri = "/mongo"
 var abPath = "/Users/lovet/GolandProjects/plabfootball/cmd/config.toml"
-
 var router *Router
 var s *service.Service
 var r *repository.Repository
