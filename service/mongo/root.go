@@ -43,9 +43,12 @@ func (m *MService) ViewAll() ([]*schema.Stadium, error) {
 
 // Upsert 는 MongoRouter에서 보낸 데이터를 repository의 Upsert에 전달합니다.
 func (m *MService) Upsert(sch string, sex, region int, upsert types.AddReq) (*schema.Stadium, error) {
-	if res, err := m.repository.Mongo.Upsert(sch, sex, region, upsert); err != nil {
-		log.Println("Failed To Call Upsert Data", "err :", err)
-		return nil, err
+	if _, err := m.repository.Mongo.View(upsert.Sch, upsert.Region, upsert.Sex); err == nil {
+		log.Println("Data that you want to insert is already exist", "err :", err)
+		return nil, errors.New("Data that you want to insert is already exist")
+	} else if res, err := m.repository.Mongo.Upsert(sch, sex, region, upsert); err != nil {
+		log.Println("Failed To Call Update Data, but created new document", "err :", err)
+		return nil, errors.New("Created new document")
 	} else {
 		return res, nil
 	}

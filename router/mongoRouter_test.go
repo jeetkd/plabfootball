@@ -158,6 +158,79 @@ func Test_MongoRouter_add(t *testing.T) {
 
 }
 
+// upsert 핸들러 테스트
+func Test_MongoRouter_upsert(t *testing.T) {
+	var tests = []struct {
+		name       string
+		postedData types.UpdateReq
+		body       string
+	}{
+		{ //server 에러 : 새로운 document가  생생된 경우를 예상하는 테스트 케이스1.
+			name: "New document added",
+			postedData: types.UpdateReq{
+				Sex:    0,
+				Region: 2,
+				Sch:    "9999-99-99",
+				Upsert: types.AddReq{
+					Sex:    0,
+					Region: 1,
+					Sch:    "9999-99-00",
+				},
+			},
+			body: "server 에러 : Created new document",
+		},
+		{ // server 에러 : Data that you want to insert is already exist : 내가 원하는 값으로 바꾸기 위한 데이터(AddReq)가 이미 존재하는 경우를 예상하는 테스트 케이스2.
+			name: "Data(AddReq) that you want to insert is already exist",
+			postedData: types.UpdateReq{
+				Sex:    0,
+				Region: 1,
+				Sch:    "9999-99-99",
+				Upsert: types.AddReq{
+					Sex:    0,
+					Region: 1,
+					Sch:    "9999-99-00",
+				},
+			},
+			body: "server 에러 : Data that you want to insert is already exist",
+		},
+		{ //ResponseOK : document가 성공적으로 업데이트된 경우를 예상하는 테스트 케이스3.
+			name: "New document added",
+			postedData: types.UpdateReq{
+				Sex:    0,
+				Region: 1,
+				Sch:    "9999-99-00",
+				Upsert: types.AddReq{
+					Sex:    0,
+					Region: 2,
+					Sch:    "9999-99-11",
+				},
+			},
+			body: `"url"`,
+		},
+		{ //bind 실패 : validation required tag 에러가 나는 경우를 예상하는 테스트 케이스4"
+			name: "Field validation for '' on the 'required' tag",
+			postedData: types.UpdateReq{
+				Sch: "9999-99-99",
+			},
+			body: "bind 실패 :",
+		},
+	}
+
+	for _, e := range tests {
+		jsonValue, _ := json.Marshal(e.postedData)
+		req, _ := http.NewRequest("PUT", baseUri+"/upsert", bytes.NewBuffer(jsonValue))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.Engin.ServeHTTP(w, req)
+
+		// body에 데이터가 비었는지 비교하고 테스트 테이스 실패 결정.
+		if !strings.Contains(w.Body.String(), e.body) {
+			t.Errorf("%s: returned wrong body; expected %s, but got %s", e.name, e.body, w.Body.String())
+		}
+	}
+
+}
+
 // 핸들러 경로 존재 확인.
 func routeExists(testRoute, testMethod string, engine *gin.Engine) bool {
 	for _, route := range engine.Routes() {
