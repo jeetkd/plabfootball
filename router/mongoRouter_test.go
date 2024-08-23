@@ -80,6 +80,7 @@ func Test_MongoRouter_view(t *testing.T) {
 	}
 }
 
+// viewAll 핸들러 테스트
 func Test_MongoRouter_viewAll(t *testing.T) {
 	var tests = []struct {
 		name string
@@ -106,6 +107,55 @@ func Test_MongoRouter_viewAll(t *testing.T) {
 			t.Errorf("%s: returned wrong body; expected %s, but got %s", e.name, e.body, w.Body.String())
 		}
 	}
+}
+
+// add 핸들러 테스트
+func Test_MongoRouter_add(t *testing.T) {
+	var tests = []struct {
+		name       string
+		postedData types.AddReq
+		body       string
+	}{
+		{ //ResponseOK : document가 성공적으로 생생된 경우를 예상하는 테스트 케이스1.
+			name: "add successes",
+			postedData: types.AddReq{
+				Sex:    0,
+				Region: 2,
+				Sch:    "9999-99-99",
+			},
+			body: "Success",
+		},
+		{ // "server 에러 : Document가 이미 존재합니다" : 같은 document가 이미 존재하는 경우를 예상하는 테스트 케이스2.
+			name: "document already exists",
+			postedData: types.AddReq{
+				Sex:    0,
+				Region: 2,
+				Sch:    "9999-99-99",
+			},
+			body: "server 에러 : Document가 이미 존재합니다.",
+		},
+		{ //bind 실패 : validation required tag 에러가 나는 경우를 예상하는 테스트 케이스3"
+			name: "Field validation for '' on the 'required' tag",
+			postedData: types.AddReq{
+				Sch: "9999-99-99",
+			},
+			body: "bind 실패 :",
+		},
+	}
+
+	for _, e := range tests {
+		jsonValue, _ := json.Marshal(e.postedData)
+		req, _ := http.NewRequest("POST", baseUri+"/add", bytes.NewBuffer(jsonValue))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.Engin.ServeHTTP(w, req)
+
+		// body에 데이터가 비었는지 비교하고 테스트 테이스 실패 결정.
+		if !strings.Contains(w.Body.String(), e.body) {
+			t.Errorf("%s: returned wrong body; expected %s, but got %s", e.name, e.body, w.Body.String())
+		}
+	}
+
 }
 
 // 핸들러 경로 존재 확인.
