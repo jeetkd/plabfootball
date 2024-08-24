@@ -231,6 +231,55 @@ func Test_MongoRouter_upsert(t *testing.T) {
 
 }
 
+// delete 핸들러 테스트
+func Test_MongoRouter_delete(t *testing.T) {
+	var tests = []struct {
+		name       string
+		postedData types.DeleteReq
+		body       string
+	}{
+		{ //ResponseOK : document가 성공적으로 삭제된 경우를 예상하는 테스트 케이스1.
+			name: "delete successes",
+			postedData: types.DeleteReq{
+				Sex:    0,
+				Region: 2,
+				Sch:    "9999-99-99",
+			},
+			body: "Success",
+		},
+		{ // "server 에러 : delete할 document가 없습니다." : 삭제할 document가 존재하지 않는 경우를 예상하는 테스트 케이스2.
+			name: "document already exists",
+			postedData: types.DeleteReq{
+				Sex:    0,
+				Region: 2,
+				Sch:    "9999-99-99",
+			},
+			body: " delete할 document가 없습니다.",
+		},
+		{ //bind 실패 : validation required tag 에러가 나는 경우를 예상하는 테스트 케이스3"
+			name: "Field validation for '' on the 'required' tag",
+			postedData: types.DeleteReq{
+				Sch: "9999-99-99",
+			},
+			body: "bind 실패 :",
+		},
+	}
+
+	for _, e := range tests {
+		jsonValue, _ := json.Marshal(e.postedData)
+		req, _ := http.NewRequest("DELETE", baseUri+"/delete", bytes.NewBuffer(jsonValue))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.Engin.ServeHTTP(w, req)
+
+		// body에 데이터가 비었는지 비교하고 테스트 테이스 실패 결정.
+		if !strings.Contains(w.Body.String(), e.body) {
+			t.Errorf("%s: returned wrong body; expected %s, but got %s", e.name, e.body, w.Body.String())
+		}
+	}
+
+}
+
 // 핸들러 경로 존재 확인.
 func routeExists(testRoute, testMethod string, engine *gin.Engine) bool {
 	for _, route := range engine.Routes() {

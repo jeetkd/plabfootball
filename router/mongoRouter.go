@@ -98,7 +98,7 @@ func (m *MongoRouter) delete(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		m.router.ResponseErr(c, ErrorMsg(BindingFailed, err))
 		return
-	} else if err := m.mService.Delete(req.Sch, req.Sex, req.Region); err != nil {
+	} else if err = m.mService.Delete(req.Sch, req.Sex, req.Region); err != nil {
 		m.router.ResponseErr(c, ErrorMsg(ServerErr, err))
 		return
 	} else {
