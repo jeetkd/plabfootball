@@ -38,17 +38,17 @@ func Test_MongoRouter_handler(t *testing.T) {
 func Test_MongoRouter_view(t *testing.T) {
 
 	var tests = []struct {
-		name               string
-		postedData         types.ViewReq
-		expectedStatusCode int
+		name       string
+		postedData types.ViewReq
+		body       string
 	}{
 		{ //ResponseOK : document가 있는 경우를 예상하는 테스트 케이스1.
 			name: "success",
 			postedData: types.ViewReq{
 				Region: 2,
-				Sch:    "2024-08-17",
+				Sch:    "2024-08-23",
 			},
-			expectedStatusCode: http.StatusOK,
+			body: "url",
 		},
 		{ // Failed To Call view Data err : document가 없는 경우를 예상하는 테스트 케이스2.
 			name: "no document in result",
@@ -56,14 +56,14 @@ func Test_MongoRouter_view(t *testing.T) {
 				Region: 1,
 				Sch:    "9999-99-99",
 			},
-			expectedStatusCode: http.StatusInternalServerError,
+			body: "server 에러 : mongo: no documents in result",
 		},
 		{ //bind 실패 : validation required tag 에러가 나는 경우를 예상하는 테스트 케이스3"
 			name: "Field validation for '' on the 'required' tag",
 			postedData: types.ViewReq{
 				Sch: "9999-99-99",
 			},
-			expectedStatusCode: http.StatusInternalServerError,
+			body: "bind 실패",
 		},
 	}
 
@@ -74,8 +74,9 @@ func Test_MongoRouter_view(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.Engin.ServeHTTP(w, req)
 
-		if w.Code != e.expectedStatusCode {
-			t.Errorf("%s: returned wrong status code; expected %d, but got %d", e.name, e.expectedStatusCode, w.Code)
+		// body에 데이터가 비었는지 비교하고 테스트 테이스 실패 결정.
+		if !strings.Contains(w.Body.String(), e.body) {
+			t.Errorf("%s: returned wrong body; expected %s, but got %s", e.name, e.body, w.Body.String())
 		}
 	}
 }
